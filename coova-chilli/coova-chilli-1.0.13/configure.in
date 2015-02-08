@@ -1,0 +1,77 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.57)
+AC_INIT(coova-chilli, 1.0.13, support@coova.org)
+AC_CONFIG_SRCDIR([src/cmdline.c])
+
+AM_INIT_AUTOMAKE
+
+AM_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+
+#JJAKO Check for libtool
+AC_PROG_LIBTOOL
+AM_PROG_LIBTOOL
+AC_ARG_PROGRAM
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([arpa/inet.h errno.h fcntl.h \
+		  netdb.h netinet/in.h \
+		  stdint.h stdlib.h string.h \
+		  sys/ioctl.h sys/socket.h \
+		  sys/param.h sys/time.h \
+		  sys/ipc.h sys/msg.h \
+		  sys/wait.h sys/un.h \
+		  sys/stat.h sys/types.h \
+		  syslog.h resolv.h \
+		  unistd.h endian.h \
+		  net/route.h net/if.h \
+		  net/ethernet.h asm/types.h \
+		  net/if_arp.h net/if_tun.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_MODE_T
+AC_HEADER_TIME
+
+# Checks for library functions.
+AC_FUNC_FORK
+AC_PROG_GCC_TRADITIONAL
+AC_FUNC_MEMCMP
+AC_FUNC_SELECT_ARGTYPES
+AC_CHECK_FUNCS([gethostbyname getprotoent gettimeofday inet_ntoa memset select socket strdup strerror strstr strtol getline])
+AC_CHECK_LIB(resolv, res_init)
+
+
+AC_ARG_WITH([openssl],
+ [AS_HELP_STRING([--with-openssl], [enable support for openssl])],[],[with_openssl=no])
+
+OPENSSL=
+AS_IF([test "x$with_openssl" != xno],
+  [AC_CHECK_LIB([crypto], [CRYPTO_malloc],
+              [AC_SUBST([LIBOPENSSL], ["-lssl -lcrypto"])
+               AC_DEFINE([HAVE_OPENSSL], [1],
+                         [Define if you have openssl])
+              ],
+              [AC_MSG_FAILURE(
+                 [--with-openssl was given, but test for openssl failed])],
+              [-lssl -lcrypto])])
+
+AC_SUBST(sysconfdir)
+AC_CONFIG_FILES([Makefile 
+		 bstring/Makefile 
+		 doc/Makefile 
+		 src/Makefile 
+		 www/Makefile
+                 conf/Makefile 
+                 debian/Makefile 
+		 coova-chilli.spec])
+
+
+AC_OUTPUT
